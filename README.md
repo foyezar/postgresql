@@ -174,19 +174,19 @@ LIMIT 2;
 
 ### CREATE
 ```sql
-- CREATE TABLE public.users (
+- CREATE TABLE IF NOT EXISTS public.users (
 	id int4 PRIMARY KEY,
 	name CHARACTER VARYING(100) NOT NULL
 );
 
-- CREATE TABLE public.users (
+- CREATE TABLE IF NOT EXISTS public.users (
 	id int4,
 	name CHARACTER VARYING(100) NOT NULL,
 	CONSTRAINT user_id_pkey PRIMARY KEY (id)
 );
 
 # FOREIGN KEY
-* create table videos (
+- create table IF NOT EXISTS videos (
 	id int4 primary key,
 	user_id int4 REFERENCES public.users,
 	name CHARACTER VARYING(255) NOT NULL
@@ -201,7 +201,7 @@ VALUES (1, 'Foyez');
 VALUES (2, 'Farhan');
 
 - CREATE SEQUENCE user_id_seq START 3;
-* ALTER TABLE public.users
+- ALTER TABLE public.users
 ALTER COLUMN id
 SET DEFAULT nextval('user_id_seq');
 - ALTER SEQUENCE user_id_seq OWNED BY public.users.id;
@@ -210,60 +210,90 @@ SET DEFAULT nextval('user_id_seq');
 ### INDEX
 ```sql
 # INDEX
-* CREATE INDEX user_name_index
+- CREATE INDEX user_name_index
 ON public.users(name);
 
 # MULTI COLUMN INDEX
-* CREATE INDEX index_name ON public.movies(id, user_id);
+- CREATE INDEX index_name ON public.movies(id, user_id);
 
 # WHEN INDEX CORUPTED OR SEARCH BECOMES SLOWER
-* REINDEX INDEX index_name;
-* REINDEX DATABASE db_name;
-* REINDEX TABLE table_name;
+- REINDEX INDEX index_name;
+- REINDEX DATABASE db_name;
+- REINDEX TABLE table_name;
 ```
 
 ### DROP
 ```sql
-* DROP TABLE public.users;
-* DROP TABLE public.users RESTRICT;
-* DROP TABLE public.users CASECADE;
-* DROP TABLE IF EXISTS public.users;
-* DROP DATABASE public.users;
-* DROP SEQUENCE public.users;
-* DROP VIEW public.users;
+- DROP TABLE public.users;
+- DROP TABLE public.users RESTRICT;
+- DROP TABLE public.users CASECADE;
+- DROP TABLE IF EXISTS public.users;
+- DROP DATABASE public.users;
+- DROP SEQUENCE public.users;
+- DROP VIEW public.users;
 ```
 
 ### VIEW
 ```sql
-* CREATE VIEW total_revenue_per_customer AS
+- CREATE VIEW total_revenue_per_customer AS
 SELECT customers.id, customers.first_name, customers.last_name, SUM(items.price) FROM customers
 INNER JOIN purchases ON customers.id = purchases.customer_id
 INNER JOIN items ON purchases.item_id = items.id
 GROUP BY customers.id;
 
-* CREATE VIEW awesome_customer AS
+- CREATE VIEW awesome_customer AS
 SELECT * FROM total_revenue_per_customer WHERE sum >= 150;
 
-* CREATE VIEW expensive_items AS
+- CREATE VIEW expensive_items AS
 SELECT * FROM items WHERE price >= 100
 WITH LOCAL CHECK OPTION;
 
-* CREATE VIEW expensive_items AS
+- CREATE VIEW expensive_items AS
 SELECT * FROM items WHERE price >= 100;
-* CREATE VIEW non_luxury_items AS
+- CREATE VIEW non_luxury_items AS
 SELECT * FROM expensive_items WHERE price < 1000
 WITH CASCADED CHECK OPTION;
-* INSERT INTO non_luxury_items(id, name, price)
+- INSERT INTO non_luxury_items(id, name, price)
 VALUES (12, 'pencil', 2.00);
 # This will work
 
-* CREATE VIEW expensive_items AS
+- CREATE VIEW expensive_items AS
 SELECT * FROM items WHERE price >= 100;
-* CREATE VIEW non_luxury_items AS
+- CREATE VIEW non_luxury_items AS
 SELECT * FROM expensive_items WHERE price < 1000
 WITH CASCADED CHECK OPTION;
-* INSERT INTO non_luxury_items(id, name, price)
+- INSERT INTO non_luxury_items(id, name, price)
 VALUES (12, 'pencil', 2.00);
 # CASECADED ALSO CHECKS FOR OTHER VIEWS
 # This will not work
+
+# inserting or updating data of the view can be validated using LOCAL OR CASCADED check option
+```
+
+### Built-in Functions
+* COUNT
+* SUM
+* AVG
+* MAX
+* MIN
+
+```sql
+- SELECT customers.first_name, customers.last_name, COUNT(purchases.id) AS purchase_count
+FROM customers
+INNER JOIN purchases ON customers.id = purchases.customer_id
+GROUP BY customers.id;
+
+- SELECT MAX(items.price) FROM items
+INNER JOIN purchases ON items.id = purchases.item_id;
+```
+
+### HAVING CONSTRUCT
+```sql
+# HAVING construct allow to filter after the aggregation has taken place
+
+SELECT customers.first_name, customers.last_name, COUNT(purchases.id) AS purchse_count
+FROM customers
+INNER JOIN purchases ON customers.id = purchases.customer_id
+GROUP BY customers.id
+HAVING COUNT(purchases.id) > 3;
 ```
