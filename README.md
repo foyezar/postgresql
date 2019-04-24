@@ -341,3 +341,14 @@ SELECT *, items.price -
 WHERE price > 100) AS "average_diff"
 FROM items WHERE price > 100;
 ```
+
+### SERIAL TYPE
+```sql
+- CREATE TABLE test (
+	id SERIAL PRIMARY KEY,
+	name text
+);
+- INSERT INTO test (name)
+VALUES ('Zayan');
+# SERIAL - auto increment id, text - no upper limit of name
+```
