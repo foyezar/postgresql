@@ -297,3 +297,47 @@ INNER JOIN purchases ON customers.id = purchases.customer_id
 GROUP BY customers.id
 HAVING COUNT(purchases.id) > 3;
 ```
+
+### Date types
+* timestamp
+* date
+* time
+* interval
+
+```sql
+- SELECT timestamp '2005-10-08 05:16:45';
+- SELECT NOW();
+- SELECT TO_CHAR(NOW(), 'FMDay DDth FMMonth, DD-MM-YYYY HH:MI:SS');
+- SELECT TO_TIMESTAMP('Wednesday 24th April, 2019 12:08:32', 'FMDay DDth FMMonth, YYYY HH:MI:SS');
+```
+
+### Other data types
+* BYTEA
+* ENUM
+* JSON
+
+```sql
+# ENUM - can put specific set of strings
+- CREATE TYPE mood AS ENUM('extremely unhappy', 'unhappy', 'ok', 'happy', 'extremely happy');
+# only these 4 types can be inserted in mood type
+- CREATE TABLE students (
+	name character varying(255),
+	current_mood mood
+);
+- INSERT INTO students
+VALUES ('Raiyyan', 'happy');
+- SELECT * FROM students
+WHERE current_mood > 'ok'; # 'happy', 'extremely happy'
+```
+
+### NESTED SELECT
+```sql
+- SELECT * FROM items WHERE price >
+(SELECT AVG(price) FROM items);
+
+- CREATE VIEW expensive_items_diff AS
+SELECT *, items.price -
+(SELECT AVG(price) FROM items
+WHERE price > 100) AS "average_diff"
+FROM items WHERE price > 100;
+```
